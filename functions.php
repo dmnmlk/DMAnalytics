@@ -370,6 +370,20 @@ function dmnmlk_get_date_ranges()
 	];
 }
 
+function dmnmlk_get_extended_data()
+{
+	return [
+		1 => ['Liczba odsłon'],
+		2 => ['Współczynnik konwersji e-commerce'],
+		3 => ['Całkowity współczynnik odrzuceń'],
+		4 => ['Skuteczność produktu'],
+		5 => ['Najskuteczniejszy produkt'],
+		6 => ['Skuteczność sprzedaży'],
+		7 => ['Łączna kwota udzielonych rabatów'],
+		8 => ['Użycie przeglądarek']
+	];
+}
+
 function dmnmlk_get_date_format($range)
 {
 	if ($range == 'last_year')

@@ -232,14 +232,14 @@ function dmnmlk_get_standard_statistic($tab_id, $range)
 	$tab_id = (!empty($tab_id) ? $tab_id : '1');
 	$range = (!empty($range) ? $range : 'last_week');
 
-	$sqlRange = dmnmlk_get_sql_from_range($range);
+	list($startDate, $endDate, $groupBy) = dmnmlk_get_sql_from_range($range);
 
 	$sql = "SELECT count(*) as liczba, date as data
 			FROM $statistic_table_name
 			WHERE id_action_type = $tab_id
-			AND UNIX_TIMESTAMP(date) >= $sqlRange[0]
-			AND UNIX_TIMESTAMP(date) <= $sqlRange[1]
-			GROUP BY $sqlRange[2]
+			AND UNIX_TIMESTAMP(date) >= $startDate
+			AND UNIX_TIMESTAMP(date) <= $endDate
+			GROUP BY $groupBy
 	";
 
 	$dbData = $wpdb->get_results($sql);
@@ -257,7 +257,7 @@ function dmnmlk_get_standard_statistic($tab_id, $range)
 			$dayStatistic->liczba
 		];
 	}
-
+	var_dump($result);
 	$result = dmnmlk_add_zeros_to_result($result, $range);
 
 	return (array) $result;
@@ -297,10 +297,10 @@ function dmnmlk_add_zeros_to_result($stat, $range)
 	$result = [];
 	$gap = dmnmlk_get_date_gap($range);
 	$dateFormat = dmnmlk_get_date_format($range);
-	$sqlRange = dmnmlk_get_sql_from_range($range);
+	list($startDate, $endDate) = dmnmlk_get_sql_from_range($range);
 
-	$start = date("Y-m-d", $sqlRange[0]);
-	$end = date("Y-m-d", $sqlRange[1]);
+	$start = date("Y-m-d", $startDate);
+	$end = date("Y-m-d", $endDate);
 
 	$startDate = new \DateTime($start);
 	$endDate = new \DateTime($end);
@@ -318,5 +318,62 @@ function dmnmlk_add_zeros_to_result($stat, $range)
 			$result[$value[0]][1] = $value[1];
 		}
 	}
+	return $result;
+}
+
+function dmnmlk_get_extended_statistic($type, $range)
+{
+	global $wpdb;
+	$result = [];
+	
+	$type = (!empty($type) ? $type : '1');
+	$range = (!empty($range) ? $range : 'last_week');
+	
+	$viewArray = dmnmlk_get_total_views_per_range($range);
+	
+	switch($type)
+	{	
+		case 1 :
+			return dmnmlk_get_total_views_per_range($range);
+			break;
+	}
+	
+}
+
+function dmnmlk_get_total_views_per_range($range)
+{
+	global $wpdb;
+	$statistic_table_name = dmnmlk_get_statistic_table_name();
+	$gap = dmnmlk_get_date_gap($range);
+	$dateFormat = dmnmlk_get_date_format($range);
+	$time_in_sec = 300;
+	
+	list($startDate, $endDate, $groupBy) = dmnmlk_get_sql_from_range($range);
+
+
+	$sql = "SELECT count(date) as liczba, date as data
+			FROM $statistic_table_name
+			WHERE UNIX_TIMESTAMP(date) >= $startDate
+			AND UNIX_TIMESTAMP(date) <= $endDate
+			GROUP BY $groupBy
+	";
+
+	$dbData = $wpdb->get_results($sql);
+
+
+	foreach ($dbData as $dayStatistic)
+	{	
+		$dateObj = new DateTime($dayStatistic->data);
+		$dateFormat = dmnmlk_get_date_format($range);
+		$data = date_format($dateObj, $dateFormat);
+
+		$result[] = [
+			$data,
+			$dayStatistic->liczba
+		];
+	}
+
+	$result = dmnmlk_add_zeros_to_result($result, $range);
+	
 	return $result;
 }

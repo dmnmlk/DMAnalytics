@@ -17,10 +17,10 @@ include( plugin_dir_path( __FILE__ ) . 'functions.php');
 include( plugin_dir_path( __FILE__ ) . 'admin/menu.php');
 
 // standard statistic view
-include( plugin_dir_path( __FILE__ ) . 'admin/standard_view.php');
+include( plugin_dir_path( __FILE__ ) . 'admin/view/standard_view.php');
 
 // extended statistic view
-include( plugin_dir_path( __FILE__ ) . 'admin/extended_view.php');
+include( plugin_dir_path( __FILE__ ) . 'admin/view/extended_view.php');
 
 add_action( 'init', 'dmnmlk_setup_post_types' );
 function dmnmlk_setup_post_types()

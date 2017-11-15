@@ -19,8 +19,6 @@ function dmnmlk_admin_subpage_standard_html()
 					}
 					echo '">' . esc_html( $action_type->full_action_name ) . '</a>';
 				}
-
-				do_action( 'wc_reports_tabs' );
 			?>
 		</nav>
 		<?php
