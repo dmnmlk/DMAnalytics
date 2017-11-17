@@ -4,6 +4,7 @@ function dmnmlk_admin_subpage_standard_html()
 {
 	$current_tab_id = ( ! empty( $_GET['tab'] ) ) ? esc_attr( $_GET['tab'] ) : '1';
 	$current_range = ( ! empty( $_GET['range'] ) ) ? esc_attr( $_GET['range'] ) : "last_week";
+	$totalValue = dmnmlk_total_value($current_tab_id, $current_range, 1);
     ?>
     <div class="wrap">
 		<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
@@ -40,6 +41,12 @@ function dmnmlk_admin_subpage_standard_html()
 				title:{
 					text: "<?php echo $action_type->full_action_name ?>"              
 				},
+				axisX:{
+					title:"Okres",
+				},
+				axisY:{
+					title:"Liczba",
+				},
 				data: [              
 				{
 					type: "line",
@@ -70,6 +77,7 @@ function dmnmlk_admin_subpage_standard_html()
 				do_action( 'wc_reports_tabs' );
 			?>
 		</nav>
+		<h3><?php echo $totalValue ?></h3>
 		<div id="chartContainer" style="margin-left: 5%; height: 80%; width: 90%;"></div>
     </div>
     <?php 

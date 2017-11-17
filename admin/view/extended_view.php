@@ -6,6 +6,7 @@ function dmnmlk_admin_subpage_extended_html()
 	$current_type = $_GET['type'];
 	$arr = dmnmlk_get_extended_data();
 	$current_name = $arr[$current_type][0];
+	$totalValue = dmnmlk_total_value($current_type, $current_range, 0);
     ?>
     <div class="wrap">
 	<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
@@ -15,13 +16,13 @@ function dmnmlk_admin_subpage_extended_html()
 		<?php foreach(dmnmlk_get_extended_data() as $k => $v):
 			$raw_url = admin_url( 'admin.php?page=dma_extended&type=' . $k . '&range=' . urlencode( $current_range ));
 			$esc_url = esc_url( $raw_url );
-			echo '<li><a href="' . $esc_url . '">' . $v[0] . '</a></li>';
+			echo '<li><a style ="width: 25%" class="button button-secondary" href="' . $esc_url . '">' . $v[0] . '</a></li>';
 		endforeach; ?>
 	</ul>
 <?php else: ?>
 <?php switch ($_GET['type']): ?>
 <?php default: ?>
-	<h1><?php echo $current_name ?></h1>
+	<h1><?php echo $current_name ?> <a class="button button-primary" href="<?php echo admin_url( 'admin.php?page=dma_extended');?>">Powrót</a></h1>
 	
 	<?php
 		foreach ( dmnmlk_get_date_ranges() as $date_range ) :
@@ -33,6 +34,9 @@ function dmnmlk_admin_subpage_extended_html()
 					$dataPoints .= "{ label: '".$dayStatistic[0]."', y:".$dayStatistic[1]."},";
 				}
 				$dataPoints .= "]";
+				
+				//pobiera labele puste albo dla wartości procentowych
+				list($axisY, $percentFormatString, $toolTipContent) = dmnmlk_get_percent_label($current_type);
 	?>
 	<script type="text/javascript">
 	window.onload = function () {
@@ -41,9 +45,17 @@ function dmnmlk_admin_subpage_extended_html()
 			title:{
 				text: "<?php echo $action_type->full_action_name ?>"              
 			},
+			axisY:{
+				title: "<?php echo $axisY ?>",
+			},
+			axisX:{
+				title:"Okres",
+			},
 			data: [              
 			{
 				type: "line",
+				percentFormatString: "<?php echo $percentFormatString ?>",
+				toolTipContent: "<?php echo $toolTipContent ?>",
 				dataPoints: <?php echo $dataPoints ?>
 			}
 			]
@@ -71,6 +83,7 @@ function dmnmlk_admin_subpage_extended_html()
 			do_action( 'wc_reports_tabs' );
 		?>
 	</nav>
+	<h3><?php echo $totalValue ?></h3>
 	<div id="chartContainer" style="margin-left: 5%; height: 80%; width: 90%;"></div>
 <?php break; ?>
 	

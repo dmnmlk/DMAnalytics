@@ -10,8 +10,11 @@ Author URI:   http://www.dmnmlk.pl
 // create, insert, delete data in database
 include( plugin_dir_path( __FILE__ ) . 'admin/database.php');
 
-// all hooks & additional functions
-include( plugin_dir_path( __FILE__ ) . 'functions.php');
+// standard view functions
+include( plugin_dir_path( __FILE__ ) . 'admin/functions/standard_functions.php');
+
+// extended view functions
+include( plugin_dir_path( __FILE__ ) . 'admin/functions/extended_functions.php');
 
 // menu generating file
 include( plugin_dir_path( __FILE__ ) . 'admin/menu.php');

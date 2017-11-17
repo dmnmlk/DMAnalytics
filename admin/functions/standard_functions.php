@@ -21,6 +21,46 @@ function dmnmlk_detect_web_browser()
 	else return 8;
 }
 
+function dmnmlk_total_value($tab, $range, $standard)
+{
+	$result = 0;
+	
+	if($standard)
+	{
+		$stat = dmnmlk_get_standard_statistic($tab, $range);
+		foreach($stat as $dayStatistic)
+		{
+			$result += $dayStatistic[1];
+		}
+		return 'Suma: '.$result;
+	}
+	else
+	{
+		$stat = dmnmlk_get_extended_statistic($tab, $range);
+		
+		$czyProcent = dmnmlk_check_if_procent_from_type($tab);
+		if($czyProcent)
+		{
+			$licznik = 0;
+			foreach($stat as $dayStatistic)
+			{
+				$licznik++;
+				$result += $dayStatistic[1];
+			}
+
+			return 'Średnia: '.number_format($result/$licznik, 2) . '%';			
+		}
+		else 
+		{
+			foreach($stat as $dayStatistic)
+			{
+				$result += $dayStatistic[1];
+			}
+			return 'Suma: '.$result;				
+		}
+	}
+}
+
 // function returns boolean value, checks if action is somehow duplicated
 function dmnmlk_is_action_duplicated( $array_to_insert )
 {
@@ -406,4 +446,116 @@ function dmnmlk_get_date_gap($range)
 	{
 		return 'day';
 	}
+}
+
+function dmnmlk_get_action_types()
+{
+	global $wpdb;
+	
+	$action_type_table_name = dmnmlk_get_action_type_table_name();
+	
+	$sql = "SELECT * 
+			FROM $action_type_table_name
+	";	
+
+	$dbData = $wpdb->get_results($sql);
+	return (array) $dbData;
+}
+
+function dmnmlk_get_standard_statistic($tab_id, $range)
+{
+	global $wpdb;
+	$result = [];
+	
+	$statistic_table_name = dmnmlk_get_statistic_table_name();
+	
+	$tab_id = (!empty($tab_id) ? $tab_id : '1');
+	$range = (!empty($range) ? $range : 'last_week');
+
+	list($startDate, $endDate, $groupBy) = dmnmlk_get_sql_from_range($range);
+
+	$sql = "SELECT count(*) as liczba, date as data
+			FROM $statistic_table_name
+			WHERE id_action_type = $tab_id
+			AND UNIX_TIMESTAMP(date) >= $startDate
+			AND UNIX_TIMESTAMP(date) <= $endDate
+			GROUP BY $groupBy
+	";
+
+	$dbData = $wpdb->get_results($sql);
+
+	
+
+	foreach ($dbData as $dayStatistic)
+	{
+		$dateObj = new DateTime($dayStatistic->data);
+		$dateFormat = dmnmlk_get_date_format($range);
+		$data = date_format($dateObj, $dateFormat);
+
+		$result[] = [
+			$data,
+			$dayStatistic->liczba
+		];
+	}
+	$result = dmnmlk_add_zeros_to_result($result, $range);
+
+	return (array) $result;
+}
+
+function dmnmlk_get_sql_from_range($range)
+{
+	switch($range)
+	{
+		case 'last_year' :
+			$start_date = strtotime( date( 'Y-01-01', current_time( 'timestamp' ) ) );
+			$end_date = strtotime( 'today 22:00', current_time( 'timestamp' ) );
+			$group_by_query = 'YEAR(date), MONTH(date)';
+			return [$start_date, $end_date, $group_by_query];
+		case 'last_month' :
+			$first_day_current_month = strtotime( date( 'Y-m-01', current_time( 'timestamp' ) ) );
+			$start_date = strtotime( date( 'Y-m-01', strtotime( '-1 DAY', $first_day_current_month ) ) );
+			$end_date = strtotime( date( 'Y-m-t', strtotime( '-1 DAY', $first_day_current_month ) ) );
+			$group_by_query = 'YEAR(date), MONTH(date), DAY(date)';
+			return [$start_date, $end_date, $group_by_query];
+		case 'this_month' :
+			$start_date = strtotime( date( 'Y-m-01', current_time( 'timestamp' ) ) );
+			$end_date = strtotime( 'today 22:00', current_time( 'timestamp' ) );
+			$group_by_query = 'YEAR(date), MONTH(date), DAY(date)';
+			return [$start_date, $end_date, $group_by_query];
+		case 'last_week' :
+		default:
+			$start_date = strtotime( '-6 days', strtotime( 'midnight', current_time( 'timestamp' ) ) );
+			$end_date = strtotime( 'today 22:00', current_time( 'timestamp' ) );
+			$group_by_query = 'YEAR(date), MONTH(date), DAY(date)';
+			return [$start_date, $end_date, $group_by_query];
+	}
+}
+
+function dmnmlk_add_zeros_to_result($stat, $range)
+{
+	$result = [];
+	$gap = dmnmlk_get_date_gap($range);
+	$dateFormat = dmnmlk_get_date_format($range);
+	list($startDate, $endDate) = dmnmlk_get_sql_from_range($range);
+
+	$start = date("Y-m-d", $startDate);
+	$end = date("Y-m-d", $endDate);
+
+	$startDate = new \DateTime($start);
+	$endDate = new \DateTime($end);
+
+	for($i = $startDate; $i <= $endDate; $i->modify('+1 '.$gap))
+	{
+		$label = date($dateFormat, $i->getTimestamp());
+		$result[$label] = [ $label, 0 ];
+	}
+
+	foreach($stat as $value)
+	{
+		if(array_key_exists($value[0], $result))
+		{
+			$result[$value[0]][1] = $value[1];
+		}
+	}
+	return $result;
 }

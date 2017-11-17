@@ -32,3 +32,18 @@ function dmnmlk_menu()
 		'dmnmlk_admin_subpage_extended_html'
     );
 }
+
+// Admin footer modification
+add_filter('admin_footer_text', 'remove_footer_admin');
+function remove_footer_admin () 
+{
+    echo '';
+}
+
+// Usunięcie wersji WP z admin menu
+add_action( 'admin_menu', 'my_footer_shh' );
+function my_footer_shh() {
+    remove_filter( 'update_footer', 'core_update_footer' ); 
+}
+
+
