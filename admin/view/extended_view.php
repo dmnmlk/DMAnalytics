@@ -2,11 +2,12 @@
 
 function dmnmlk_admin_subpage_extended_html()
 {
+	$current_product_id = ( ! empty( $_GET['product_id'] ) ) ? esc_attr( $_GET['product_id'] ) : dmnmlk_get_first_product_id();
 	$current_range = ( ! empty( $_GET['range'] ) ) ? esc_attr( $_GET['range'] ) : "last_week";
 	$current_type = $_GET['type'];
 	$arr = dmnmlk_get_extended_data();
 	$current_name = $arr[$current_type][0];
-	$totalValue = dmnmlk_total_value($current_type, $current_range, 0);
+	$totalValue = dmnmlk_total_value($current_type, $current_range, $current_product_id, 0);
     ?>
     <div class="wrap">
 	<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
@@ -27,7 +28,7 @@ function dmnmlk_admin_subpage_extended_html()
 	<?php
 		foreach ( dmnmlk_get_date_ranges() as $date_range ) :
 			if ( $current_range == $date_range[0] ) :
-				$stat = dmnmlk_get_extended_statistic($current_type, $current_range);
+				$stat = dmnmlk_get_extended_statistic($current_type, $current_range, $current_product_id);
 				$dataPoints = "[";
 				foreach($stat as $dayStatistic)
 				{
@@ -43,6 +44,7 @@ function dmnmlk_admin_subpage_extended_html()
 		var chart = new CanvasJS.Chart("chartContainer", {
 			backgroundColor: "#f1f1f1",
 			title:{
+				// tutaj dodać tytuł bo $action_type->full_action_name nie działa
 				text: "<?php echo $action_type->full_action_name ?>"              
 			},
 			axisY:{
@@ -68,6 +70,22 @@ function dmnmlk_admin_subpage_extended_html()
 			endif;
 		endforeach;
 	?>
+	<?php if ($current_type == 4): ?>
+	<h2>Wybierz produkt</h2>
+	<form action="" method="get">
+		<input type="hidden" name="page" value="dma_extended">
+		<input type="hidden" name="type" value="<?php echo $current_type ?>">
+		<input type="hidden" name="range" value="<?php echo $current_range ?>">
+		<select name="product_id" id="product_id">
+		<?php
+		foreach( dmnmlk_get_products() as $id => $name ) : ?>
+			<option <?php if ($current_product_id == $id) echo 'selected' ?> value="<?php echo $id ?>"><?php echo $name ?></option>
+		<?php endforeach; ?>
+		</select>
+		<input type="submit" value="Wybierz"/>
+	</form>	
+	<?php endif; ?>
+	
 	<h2>Wybierz okres do wyświetlenia:</h2>
 	<nav class="nav-tab-wrapper">
 		<?php
@@ -86,8 +104,6 @@ function dmnmlk_admin_subpage_extended_html()
 	<h3><?php echo $totalValue ?></h3>
 	<div id="chartContainer" style="margin-left: 5%; height: 80%; width: 90%;"></div>
 <?php break; ?>
-	
-
 <?php endswitch; ?>
 <?php endif; ?>
     </div>

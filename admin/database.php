@@ -18,6 +18,24 @@ function dmnmlk_get_web_browser_table_name()
 	return $wpdb->prefix . 'dmnmlk_web_browser';
 }
 
+function dmnmlk_get_posts_table_name()
+{
+	global $wpdb;
+	return $wpdb->prefix . 'posts';
+}
+
+function dmnmlk_get_wc_order_items_table_name()
+{
+	global $wpdb;
+	return $wpdb->prefix . 'woocommerce_order_items';
+}
+
+function dmnmlk_get_wc_order_itemmeta_table_name()
+{
+	global $wpdb;
+	return $wpdb->prefix . 'woocommerce_order_itemmeta';
+}
+
 // adding plugin tables
 function dmnmlk_create_tables()
 {

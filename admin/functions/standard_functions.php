@@ -21,7 +21,7 @@ function dmnmlk_detect_web_browser()
 	else return 8;
 }
 
-function dmnmlk_total_value($tab, $range, $standard)
+function dmnmlk_total_value($tab, $range, $product_id, $standard)
 {
 	$result = 0;
 	
@@ -36,7 +36,7 @@ function dmnmlk_total_value($tab, $range, $standard)
 	}
 	else
 	{
-		$stat = dmnmlk_get_extended_statistic($tab, $range);
+		$stat = dmnmlk_get_extended_statistic($tab, $range, $product_id);
 		
 		$czyProcent = dmnmlk_check_if_procent_from_type($tab);
 		if($czyProcent)
