@@ -21,44 +21,16 @@ function dmnmlk_detect_web_browser()
 	else return 8;
 }
 
-function dmnmlk_total_value($tab, $range, $product_id, $standard)
+function dmnmlk_total_value_standard($tab, $range)
 {
 	$result = 0;
-	
-	if($standard)
-	{
-		$stat = dmnmlk_get_standard_statistic($tab, $range);
-		foreach($stat as $dayStatistic)
-		{
-			$result += $dayStatistic[1];
-		}
-		return 'Suma: '.$result;
-	}
-	else
-	{
-		$stat = dmnmlk_get_extended_statistic($tab, $range, $product_id);
-		
-		$czyProcent = dmnmlk_check_if_procent_from_type($tab);
-		if($czyProcent)
-		{
-			$licznik = 0;
-			foreach($stat as $dayStatistic)
-			{
-				$licznik++;
-				$result += $dayStatistic[1];
-			}
 
-			return 'Średnia: '.number_format($result/$licznik, 2) . '%';			
-		}
-		else 
-		{
-			foreach($stat as $dayStatistic)
-			{
-				$result += $dayStatistic[1];
-			}
-			return 'Suma: '.$result;				
-		}
+	$stat = dmnmlk_get_standard_statistic($tab, $range);
+	foreach($stat as $dayStatistic)
+	{
+		$result += $dayStatistic[1];
 	}
+	return 'Łączna liczba akcji: '.$result;	
 }
 
 // function returns boolean value, checks if action is somehow duplicated
@@ -407,20 +379,6 @@ function dmnmlk_get_date_ranges()
 		2 => ['last_month','Poprzedni miesiąc'],
 		3 => ['this_month','Ten miesiąc'],
 		4 => ['last_week','Ostatni tydzień']
-	];
-}
-
-function dmnmlk_get_extended_data()
-{
-	return [
-		1 => ['Liczba odsłon'],
-		2 => ['Współczynnik konwersji e-commerce'],
-		3 => ['Całkowity współczynnik odrzuceń'],
-		4 => ['Skuteczność produktu'],
-		5 => ['Najskuteczniejszy produkt'],
-		6 => ['Skuteczność sprzedaży'],
-		7 => ['Łączna kwota udzielonych rabatów'],
-		8 => ['Użycie przeglądarek']
 	];
 }
 

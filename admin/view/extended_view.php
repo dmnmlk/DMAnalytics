@@ -7,7 +7,8 @@ function dmnmlk_admin_subpage_extended_html()
 	$current_type = $_GET['type'];
 	$arr = dmnmlk_get_extended_data();
 	$current_name = $arr[$current_type][0];
-	$totalValue = dmnmlk_total_value($current_type, $current_range, $current_product_id, 0);
+
+	list($totalLabel, $axisY, $percentFormatString, $toolTipContent, $diagramType, $indexLabel) = dmnmlk_get_extended_labels($current_type, $current_range, $current_product_id);
     ?>
     <div class="wrap">
 	<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
@@ -17,7 +18,7 @@ function dmnmlk_admin_subpage_extended_html()
 		<?php foreach(dmnmlk_get_extended_data() as $k => $v):
 			$raw_url = admin_url( 'admin.php?page=dma_extended&type=' . $k . '&range=' . urlencode( $current_range ));
 			$esc_url = esc_url( $raw_url );
-			echo '<li><a style ="width: 25%" class="button button-secondary" href="' . $esc_url . '">' . $v[0] . '</a></li>';
+			echo '<li><a style ="font-size: 150%;width: 33%" class="button button-secondary" href="' . $esc_url . '">' . $v[0] . '</a></li>';
 		endforeach; ?>
 	</ul>
 <?php else: ?>
@@ -37,15 +38,14 @@ function dmnmlk_admin_subpage_extended_html()
 				$dataPoints .= "]";
 				
 				//pobiera labele puste albo dla wartości procentowych
-				list($axisY, $percentFormatString, $toolTipContent) = dmnmlk_get_percent_label($current_type);
+				
 	?>
 	<script type="text/javascript">
 	window.onload = function () {
 		var chart = new CanvasJS.Chart("chartContainer", {
 			backgroundColor: "#f1f1f1",
 			title:{
-				// tutaj dodać tytuł bo $action_type->full_action_name nie działa
-				text: "<?php echo $action_type->full_action_name ?>"              
+				text: "<?php echo $current_name ?>"              
 			},
 			axisY:{
 				title: "<?php echo $axisY ?>",
@@ -55,7 +55,8 @@ function dmnmlk_admin_subpage_extended_html()
 			},
 			data: [              
 			{
-				type: "line",
+				type: "<?php echo $diagramType ?>",
+				indexLabel: "<?php echo $indexLabel ?>",
 				percentFormatString: "<?php echo $percentFormatString ?>",
 				toolTipContent: "<?php echo $toolTipContent ?>",
 				dataPoints: <?php echo $dataPoints ?>
@@ -71,19 +72,19 @@ function dmnmlk_admin_subpage_extended_html()
 		endforeach;
 	?>
 	<?php if ($current_type == 4): ?>
-	<h2>Wybierz produkt</h2>
-	<form action="" method="get">
-		<input type="hidden" name="page" value="dma_extended">
-		<input type="hidden" name="type" value="<?php echo $current_type ?>">
-		<input type="hidden" name="range" value="<?php echo $current_range ?>">
-		<select name="product_id" id="product_id">
-		<?php
-		foreach( dmnmlk_get_products() as $id => $name ) : ?>
-			<option <?php if ($current_product_id == $id) echo 'selected' ?> value="<?php echo $id ?>"><?php echo $name ?></option>
-		<?php endforeach; ?>
-		</select>
-		<input type="submit" value="Wybierz"/>
-	</form>	
+		<h2>Wybierz produkt</h2>
+		<form action="" method="get">
+			<input type="hidden" name="page" value="dma_extended">
+			<input type="hidden" name="type" value="<?php echo $current_type ?>">
+			<input type="hidden" name="range" value="<?php echo $current_range ?>">
+			<select name="product_id" id="product_id">
+			<?php
+			foreach( dmnmlk_get_products() as $id => $name ) : ?>
+				<option <?php if ($current_product_id == $id) echo 'selected' ?> value="<?php echo $id ?>"><?php echo $name ?></option>
+			<?php endforeach; ?>
+			</select>
+			<input type="submit" value="Wybierz"/>
+		</form>	
 	<?php endif; ?>
 	
 	<h2>Wybierz okres do wyświetlenia:</h2>
@@ -101,7 +102,7 @@ function dmnmlk_admin_subpage_extended_html()
 			do_action( 'wc_reports_tabs' );
 		?>
 	</nav>
-	<h3><?php echo $totalValue ?></h3>
+	<h3><?php echo $totalLabel ?></h3>
 	<div id="chartContainer" style="margin-left: 5%; height: 80%; width: 90%;"></div>
 <?php break; ?>
 <?php endswitch; ?>

@@ -24,6 +24,12 @@ function dmnmlk_get_posts_table_name()
 	return $wpdb->prefix . 'posts';
 }
 
+function dmnmlk_get_postmeta_table_name()
+{
+	global $wpdb;
+	return $wpdb->prefix . 'postmeta';
+}
+
 function dmnmlk_get_wc_order_items_table_name()
 {
 	global $wpdb;
