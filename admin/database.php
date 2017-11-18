@@ -179,7 +179,7 @@ function dmnmlk_insert_action_type_data()
 		1 => [1, 'add_product_to_cart','Dodanie produktu do koszyka'],
 		2 => [2, 'show_product_cart','Wyświetlanie karty produktu'],
 		3 => [3, 'delete_product_from_cart','Usunięcie produktu z koszyka'],
-		4 => [4, 'add_coupon_in_cart','Dodanie rabatu w koszyku'],
+		4 => [4, 'add_coupon_in_cart','Dodanie rabatu'],
 		5 => [5, 'cart','Przejście do koszyka'],
 		6 => [6, 'checkout','Przejście do realizacji'],
 		7 => [7, 'place_order','Złożenie zamówienia']
